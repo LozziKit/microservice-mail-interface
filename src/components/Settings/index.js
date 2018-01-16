@@ -8,12 +8,15 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
+import config from '../../api/config.js';
 
 class Settings extends Component {
   constructor(props) {
     super(props);
     this.state = {
       settingOpen: false,
+      saved: true,
+      ...config
     };
   }
 
@@ -24,8 +27,14 @@ class Settings extends Component {
   handleSettingClose = () => {
     this.setState({...this.state, settingOpen: false});
   };
+  
+  handleSettingReset = () => {
+    this.setState({...this.state, ...config, saved: true});
+  };
 
   handleSettingSave = () => {
+    config.baseUrl = this.state.baseUrl;
+    this.setState({...this.state, saved: true});
     this.handleSettingClose();
   };
 
@@ -51,6 +60,8 @@ class Settings extends Component {
                   shrink: true,
                 }}
                 placeholder="/api/mail/v1/"
+                value={this.state.baseUrl}
+                onChange={(e) => this.setState({...this.state, baseUrl: e.target.value, saved: false})}
                 helperText="The base url of the mail service"
                 fullWidth
                 margin="normal"
@@ -58,8 +69,11 @@ class Settings extends Component {
               />
             </DialogContent>
             <DialogActions>
+              <Button onClick={this.handleSettingReset} disabled={this.state.saved}>
+                Reset
+              </Button>
               <Button onClick={this.handleSettingClose} color="primary">
-                Cancel
+                Close
               </Button>
               <Button onClick={this.handleSettingSave} color="primary">
                 Save
