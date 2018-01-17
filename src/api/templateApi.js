@@ -6,6 +6,11 @@ function getAll() {
         .get(`${config.baseUrl}/templates`);
 }
 
+function getNamed(name) {
+    return request
+        .get(`${config.baseUrl}/templates/${name}`);
+}
+
 function post(template) {
     return request
         .post(`${config.baseUrl}/templates`)
@@ -31,6 +36,7 @@ function remove(link) {
 
 const TemplateApi = {
     getAll,
+    getNamed,
     post,
     get,
     put,

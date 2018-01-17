@@ -6,11 +6,15 @@ function getAll() {
         .get(`${config.baseUrl}/mails`);
 }
 
-function post(mail) {
+function post(mails) {
     return request
         .post(`${config.baseUrl}/mails`)
         .type('json')
-        .send(mail);
+        .send(mails);
+}
+
+function postOne(mail) {
+    return post([mail]);
 }
 
 function get(link) {
@@ -18,23 +22,11 @@ function get(link) {
         .get(`${config.baseUrl}${link}`)
 }
 
-function put(mail) {
-    return request
-        .put(`${config.baseUrl}${mail.url}`)
-        .send(mail);
-}
-
-function remove(link) {
-    return request
-        .del(link);
-}
-
 const MailApi = {
     getAll,
     post,
+    postOne,
     get,
-    put,
-    remove,
 };
 
 export default MailApi;
