@@ -7,9 +7,10 @@ import Dialog, {
   DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
-import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
 import AddIcon from 'material-ui-icons/Add';
+import Button from 'material-ui/Button';
+import TextField from 'material-ui/TextField';
+import Typography from 'material-ui/Typography';
 import { withStyles } from 'material-ui/styles';
 
 import TemplateSummary from '../TemplateSummary';
@@ -34,29 +35,29 @@ class TemplatePopupTitle extends Component {
   render() {
     switch(this.props.mode) {
       case PopupMode.NEW_TEMPLATE:
-        return null;
+        return <DialogTitle id="form-dialog-title">New Template</DialogTitle>;
       default:
-        return(
-          <DialogTitle id="form-dialog-title">{this.props.value}</DialogTitle>
-        );
+        return <DialogTitle id="form-dialog-title">{this.props.value}</DialogTitle>;
     }
   }
 }
 
 class TemplatePopupContent extends Component {
-  splitContent(content) {
-    return content.split("\n").map((line) => (
-        <span>
-          {line}<br/>
-        </span>
-      )
-    );
-  }
-
   render() {
     switch(this.props.mode) {
       case PopupMode.NEW_TEMPLATE:
-        return null;
+        return (
+          <DialogContent>
+            <DialogContentText>
+              Title of the new template
+            </DialogContentText>
+            <TextField placeholder={this.props.content} />
+            <DialogContentText>
+              Content of the new template
+            </DialogContentText>
+            <TextField multiline placeholder={"..."} />
+          </DialogContent>
+        );
       case PopupMode.READ_TEMPLATE:
         return (
           <DialogContent>
@@ -64,12 +65,28 @@ class TemplatePopupContent extends Component {
               Content of the template
             </DialogContentText>
             <Typography component="p">
-              {this.splitContent(this.props.content)}
+              {
+                this.props.content.split("\n").map((line) => (
+                  <span>
+                    {line}<br />
+                  </span>
+                ))
+              }
             </Typography>
           </DialogContent>
         );
       case PopupMode.MODIFY_TEMPLATE:
-        return null;
+        return (
+          <DialogContent>
+            <DialogContentText>
+              New content for the template
+            </DialogContentText>
+            <TextField
+              multiline
+              defaultValue={ this.props.content}
+            />
+          </DialogContent>
+        );
       default:
         return null;
     }
@@ -121,9 +138,9 @@ class TemplatePopup extends Component {
           onClose={this.props.onClose}
         >
           <div>
-            <TemplatePopupTitle mode={this.props.mode} value={this.props.template.name}/>
-            <TemplatePopupContent mode={this.props.mode} content={this.props.template.content}/>
-            <TemplatePopupActions mode={this.props.mode} onClose={this.props.onClose}/>
+            <TemplatePopupTitle mode={this.props.mode} value={this.props.template.name} />
+            <TemplatePopupContent mode={this.props.mode} content={this.props.template.content} />
+            <TemplatePopupActions mode={this.props.mode} onClose={this.props.onClose} />
           </div>
         </Dialog>
       </div>
@@ -192,7 +209,10 @@ class TemplateList extends Component {
             ))
           : <div>There is no template yet.</div>
         }
-        <Button fab color="primary" aria-label="add" className={this.props.classes.fab}>
+        <Button fab color="primary" aria-label="add"
+          className={this.props.classes.fab}
+          onClick={this.handlePopupNewTemplate}
+        >
           <AddIcon />
         </Button>
       </div>

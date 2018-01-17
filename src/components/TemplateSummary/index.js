@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import { Route, Link } from 'react-router-dom';
 
-import Card, { CardActions, CardContent } from 'material-ui/Card';
+import Card, {
+  CardActions,
+  CardContent
+} from 'material-ui/Card';
 import Button from 'material-ui/Button';
 import Typography from 'material-ui/Typography';
 
