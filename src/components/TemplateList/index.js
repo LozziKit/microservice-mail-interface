@@ -20,6 +20,81 @@ let PopupMode = Object.freeze({
   "MODIFY_TEMPLATE": 3,
 });
 
+class TemplatePopupTitle extends Component {
+  render() {
+    switch(this.props.mode) {
+      case PopupMode.NEW_TEMPLATE:
+        return null;
+      default:
+        return(
+          <DialogTitle id="form-dialog-title">{this.props.value}</DialogTitle>
+        );
+    }
+  }
+}
+
+class TemplatePopupContent extends Component {
+  splitContent(content) {
+    return content.split("\n").map((line) => (
+        <span>
+          {line}<br/>
+        </span>
+      )
+    );
+  }
+
+  render() {
+    switch(this.props.mode) {
+      case PopupMode.NEW_TEMPLATE:
+        return null;
+      case PopupMode.READ_TEMPLATE:
+        return (
+          <DialogContent>
+            <DialogContentText>
+              Content of the template
+            </DialogContentText>
+            <Typography component="p">
+              {this.splitContent(this.props.content)}
+            </Typography>
+          </DialogContent>
+        );
+      case PopupMode.MODIFY_TEMPLATE:
+        return null;
+      default:
+        return null;
+    }
+  }
+}
+
+class TemplatePopupActions extends Component {
+  render() {
+    switch(this.props.mode) {
+      case PopupMode.READ_TEMPLATE:
+        return (
+          <DialogActions>
+            <Button onClick={this.props.onClose} color="primary">
+              Close
+            </Button>
+          </DialogActions>
+        );
+      case PopupMode.NEW_TEMPLATE:
+      case PopupMode.MODIFY_TEMPLATE:
+        return (
+          <DialogActions>
+            <Button onClick={this.props.onClose} color="primary">
+              Submit
+            </Button>
+            <Button onClick={this.props.onClose} color="primary">
+              Cancel
+            </Button>
+          </DialogActions>
+        );
+      default:
+        return null;
+    }
+  }
+}
+
 class TemplatePopup extends Component {
   render() {
     if (this.props.template === undefined) {
@@ -36,28 +111,9 @@ class TemplatePopup extends Component {
           onClose={this.props.onClose}
         >
           <div>
-            <DialogTitle id="form-dialog-title">{this.props.template.name}</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Content of the template
-              </DialogContentText>
-              <Typography component="p">
-                {
-                  this.props.template.content.split("\n").map((line) => {
-                    return (
-                      <span>
-                        {line}<br/>
-                      </span>
-                    );
-                  })
-                }
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.props.onClose} color="primary">
-                Cancel
-              </Button>
-            </DialogActions>
+            <TemplatePopupTitle mode={this.props.mode} value={this.props.template.name}/>
+            <TemplatePopupContent mode={this.props.mode} content={this.props.template.content}/>
+            <TemplatePopupActions mode={this.props.mode} onClose={this.props.onClose}/>
           </div>
         </Dialog>
       </div>
@@ -120,6 +176,7 @@ class TemplateList extends Component {
                 name={t.name}
                 description={t.description}
                 onView={() => this.handlePopupReadTemplate(t)}
+                onModify={() => this.handlePopupModifyTemplate(t)}
                 onDelete={() => TemplateApi.remove(t.url)
                   .then((req) => this.getAllTemplates(), (err) => console.log(err))} />
             ))

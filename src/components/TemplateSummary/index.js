@@ -17,9 +17,7 @@ class TemplateSummary extends Component {
           <CardActions>
             <Button raised color="primary">Use</Button>
             <Button onClick={this.props.onView}>View</Button>
-            <Link to={`/templates/${this.props.name}`}>
-              <Button>Modify</Button>
-            </Link>
+            <Button onClick={this.props.onModify}>Modify</Button>
             <Button onClick={this.props.onDelete} color="accent">Delete</Button>
           </CardActions>
         </Card>
