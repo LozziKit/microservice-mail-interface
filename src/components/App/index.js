@@ -8,6 +8,7 @@ import Button from 'material-ui/Button';
 
 import Settings from '../Settings';
 import TemplateManager from '../TemplateManager';
+import MailManager from '../MailManager';
 
 class App extends Component {
   render() {
@@ -31,6 +32,7 @@ class App extends Component {
         </AppBar>
         <Route exact path="/" component={Home} />
         <Route path="/templates" component={TemplateManager} />
+        <Route path="/mails" component={MailManager} />
         </div>
       </Router>
     );
