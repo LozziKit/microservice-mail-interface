@@ -13,14 +13,65 @@ import Button from 'material-ui/Button';
 import TemplateSummary from '../TemplateSummary';
 import { TemplateApi } from '../../api';
 
+let PopupMode = Object.freeze({
+  "CLOSED": 0,
+  "NEW_TEMPLATE": 1,
+  "READ_TEMPLATE": 2,
+  "MODIFY_TEMPLATE": 3,
+});
+
+class TemplatePopup extends Component {
+  render() {
+    if (this.props.template === undefined) {
+      return null;
+    }
+
+    console.log(this.props.template.content);
+
+    return (
+      <div>
+        <Dialog
+          aria-labelledby="templatepopup"
+          open={this.props.mode !== PopupMode.CLOSED}
+          onClose={this.props.onClose}
+        >
+          <div>
+            <DialogTitle id="form-dialog-title">{this.props.template.name}</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Content of the template
+              </DialogContentText>
+              <Typography component="p">
+                {
+                  this.props.template.content.split("\n").map((line) => {
+                    return (
+                      <span>
+                        {line}<br/>
+                      </span>
+                    );
+                  })
+                }
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.props.onClose} color="primary">
+                Cancel
+              </Button>
+            </DialogActions>
+          </div>
+        </Dialog>
+      </div>
+    );
+  }
+}
+
 class TemplateList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       templates: [],
-      popupOpen: false,
-      popupTitle: "",
-      popupText: "",
+      popupMode: PopupMode.CLOSED,
+      popupTemplate: undefined,
     };
   }
 
@@ -37,49 +88,27 @@ class TemplateList extends Component {
     });
   }
 
-  handlePopupOpen = (title, content) => {
+  handlePopupChangeMode = (mode, t) => {
     this.setState({
       ...this.state,
-      popupOpen: true,
-      popupTitle: title,
-      popupText: content,
+      popupMode: mode,
+      popupTemplate: t,
     });
   };
 
-  handlePopupClose = () => {
-    this.setState({
-      ...this.state,
-      popupOpen: false,
-      popupTitle: "",
-      popupText: "",
-    });
-  };
+  handlePopupClose = () => this.handlePopupChangeMode(PopupMode.CLOSED, undefined);
+  handlePopupNewTemplate = (t) => this.handlePopupChangeMode(PopupMode.NEW_TEMPLATE, t);
+  handlePopupReadTemplate = (t) => this.handlePopupChangeMode(PopupMode.READ_TEMPLATE, t);
+  handlePopupModifyTemplate = (t) => this.handlePopupChangeMode(PopupMode.MODIFY_TEMPLATE, t);
 
   render() {
     return (
       <div>
-        <Dialog
-          aria-labelledby="templatepopup"
-          open={this.state.popupOpen}
+        <TemplatePopup
+          mode={this.state.popupMode}
+          template={this.state.popupTemplate}
           onClose={this.handlePopupClose}
-        >
-          <div>
-            <DialogTitle id="form-dialog-title">{this.state.popupTitle}</DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Content of the template
-              </DialogContentText>
-              <Typography>
-                {this.state.popupText}
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handlePopupClose} color="primary">
-                Cancel
-              </Button>
-            </DialogActions>
-          </div>
-        </Dialog>
+        />
         {
           this.state.err ?
             <div>Error recuperating the templates</div>
@@ -90,7 +119,7 @@ class TemplateList extends Component {
                 link={t.url}
                 name={t.name}
                 description={t.description}
-                onView={() => this.handlePopupOpen(t.name, t.content)}
+                onView={() => this.handlePopupReadTemplate(t)}
                 onDelete={() => TemplateApi.remove(t.url)
                   .then((req) => this.getAllTemplates(), (err) => console.log(err))} />
             ))
