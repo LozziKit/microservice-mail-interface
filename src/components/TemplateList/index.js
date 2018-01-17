@@ -9,9 +9,19 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
+import AddIcon from 'material-ui-icons/Add';
+import { withStyles } from 'material-ui/styles';
 
 import TemplateSummary from '../TemplateSummary';
 import { TemplateApi } from '../../api';
+
+const styles = theme => ({
+  fab: {
+    position: 'fixed',
+    bottom: theme.spacing.unit * 2,
+    right: theme.spacing.unit * 2,
+  },
+});
 
 let PopupMode = Object.freeze({
   "CLOSED": 0,
@@ -125,9 +135,12 @@ class TemplateList extends Component {
             ))
           : <div>There is no template yet.</div>
         }
+        <Button fab color="primary" aria-label="add" className={this.props.classes.fab}>
+          <AddIcon />
+        </Button>
       </div>
     );
   }
 }
 
-export default TemplateList;
+export default withStyles(styles)(TemplateList);

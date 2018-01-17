@@ -9,9 +9,19 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import Typography from 'material-ui/Typography';
 import Button from 'material-ui/Button';
+import AddIcon from 'material-ui-icons/Add';
+import { withStyles } from 'material-ui/styles';
 
 import MailSummary from '../MailSummary';
 import { MailApi } from '../../api';
+
+const styles = theme => ({
+  fab: {
+    position: 'fixed',
+    bottom: theme.spacing.unit * 2,
+    right: theme.spacing.unit * 2,
+  },
+});
 
 class MailList extends Component {
   constructor(props) {
@@ -49,7 +59,7 @@ class MailList extends Component {
     this.setState({
       ...this.state,
       popupOpen: false,
-      popupMail: null,
+      popupMail: undefined,
     });
   };
 
@@ -63,6 +73,14 @@ class MailList extends Component {
         >
           <div>
             <DialogTitle id="form-dialog-title">{this.state.popupTitle}</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Template used for the mail
+              </DialogContentText>
+              <Typography>
+                {this.state.popupMail ? this.state.popupMail.templateName : ""}
+              </Typography>
+            </DialogContent>
             <DialogContent>
               <DialogContentText>
                 Content of the mail
@@ -89,11 +107,14 @@ class MailList extends Component {
                 mail={mail}
                 onView={() => this.handlePopupOpen(mail)} />
             ))
-          : <div>There is no archived mail yet.</div>
+          : (<div>There is no archived mail yet.</div>)
         }
+        <Button fab color="primary" aria-label="add" className={this.props.classes.fab}>
+          <AddIcon />
+        </Button>
       </div>
     );
   }
 }
 
-export default MailList;
+export default withStyles(styles)(MailList);
