@@ -56,7 +56,7 @@ class TemplatePopup extends Component {
       this.setState({editableTemplate});
     }
   }
-  
+
   setTemplate(updatedTemplate) {
     let editableTemplate = {...this.state.editableTemplate, ...updatedTemplate};
     this.setState({editableTemplate})
@@ -274,7 +274,7 @@ class TemplateList extends Component {
       popupTemplate: t,
     });
   };
-  
+
   handlePopupSubmit = (template) => {
     console.log(template);
     let request;
@@ -288,7 +288,7 @@ class TemplateList extends Component {
     request.then(
       (res) => {
         this.getAllTemplates();
-      }, 
+      },
       (err, res) => {
         console.log(err);
       });
