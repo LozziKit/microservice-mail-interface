@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Lozzikit - Mail - Admin App",
+  "name": "Administration app for the Lozzikit - Mail microservice",
   "icons": [
     {
       "src": "favicon.ico",
