@@ -13,6 +13,7 @@ import { withStyles } from 'material-ui/styles';
 
 import TemplateSummary from '../TemplateSummary';
 import { TemplateApi } from '../../api';
+import Snackbar from "material-ui/Snackbar";
 
 const styles = theme => ({
   fab: {
@@ -33,8 +34,12 @@ class TemplatePopup extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      editableTemplate: {},
+      editableTemplate: {...this.defaultEditableTemplate},
     };
+  }
+
+  defaultEditableTemplate = {
+    subject: "",
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,7 +55,7 @@ class TemplatePopup extends Component {
       let editableTemplate = {
         name: nextProps.template.name,
         description: nextProps.template.description,
-        subject: metaValues.subject,
+        subject: metaValues.subject || "",
         content: body,
       }
       this.setState({editableTemplate});
@@ -75,7 +80,7 @@ class TemplatePopup extends Component {
 
     this.props.onSubmit(templateToSubmit);
     this.setState({
-      editableTemplate: {},
+      editableTemplate: {...this.defaultEditableTemplate},
     });
   };
 
@@ -255,10 +260,9 @@ class TemplateList extends Component {
   getAllTemplates() {
     TemplateApi.getAll()
     .then((res) => {
-      this.setState({err: undefined, templates: res.body});
-    }, (err, res) => {
-      console.log(err);
-      this.setState({err: err});
+      this.setState({err: false, templates: res.body});
+    }, (err) => {
+      this.setState({err: true, errMsg: `Error ${err.status} (${err.message}) while getting all templates`});
     });
   }
 
@@ -288,15 +292,23 @@ class TemplateList extends Component {
     request.then(
       (res) => {
         this.getAllTemplates();
-      },
-      (err, res) => {
-        console.log(err);
+      }, 
+      (err) => {
+        this.setState({err: true, errMsg: `Error ${err.status} (${err.message}) while saving a template`});
       });
     this.setState({
       popupMode: PopupMode.CLOSED,
       popupTemplate: undefined,
     });
   };
+
+  handleSnackbarClose = (event, reason) => {
+      if (reason === 'clickaway') {
+          return;
+      }
+
+      this.setState({ err: false });
+  }
 
   handlePopupClose = () => {
     this.handlePopupChangeMode(PopupMode.CLOSED, undefined);
@@ -314,22 +326,38 @@ class TemplateList extends Component {
           onClose={this.handlePopupClose}
           onSubmit={this.handlePopupSubmit}
         />
+        <Snackbar
+            anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+            }}
+            open={this.state.err}
+            autoHideDuration={3000}
+            onClose={this.handleSnackbarClose}
+            SnackbarContentProps={{
+                'aria-describedby': 'message-id',
+            }}
+            message={<span id="message-id">{this.state.errMsg}</span>}
+            action={[
+                <Button key="close" color="accent" dense onClick={this.handleSnackbarClose}>
+                    CLOSE
+                </Button>,
+            ]}
+        />
         {
-          this.state.err ?
-            <div>Error recuperating the templates</div>
-          : this.state.templates ?
-            this.state.templates.map(t => (
-              <TemplateSummary
-                key={t.name}
-                link={t.url}
-                name={t.name}
-                description={t.description}
-                onView={() => this.handlePopupReadTemplate(t)}
-                onModify={() => this.handlePopupModifyTemplate(t)}
-                onDelete={() => TemplateApi.remove(t.url)
-                  .then((req) => this.getAllTemplates(), (err) => console.log(err))} />
-            ))
-          : <div>There is no template yet.</div>
+          this.state.templates ?
+          this.state.templates.map(t => (
+            <TemplateSummary
+              key={t.name}
+              link={t.url}
+              name={t.name}
+              description={t.description}
+              onView={() => this.handlePopupReadTemplate(t)}
+              onModify={() => this.handlePopupModifyTemplate(t)}
+              onDelete={() => TemplateApi.remove(t.url)
+                .then((req) => this.getAllTemplates(), (err) => console.log(err))} />
+          ))
+        : <div>There is no template yet.</div>
         }
         <Button fab color="primary" aria-label="add"
           className={this.props.classes.fab}

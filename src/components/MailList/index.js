@@ -56,9 +56,9 @@ class MailPopup extends Component {
 
   handleOnSend() {
     let mailToSend = {...this.state.createdMail};
-    mailToSend.to = mailToSend.to ? mailToSend.to.split(";").map(a => a.trim()) : null;
-    mailToSend.cc = mailToSend.cc ? mailToSend.cc.split(";").map(a => a.trim()) : null;
-    mailToSend.cci = mailToSend.cci ? mailToSend.cci.split(";").map(a => a.trim()) : null;
+    mailToSend.to = mailToSend.to ? mailToSend.to.split(";").map(a => a.trim()) : [];
+    mailToSend.cc = mailToSend.cc ? mailToSend.cc.split(";").map(a => a.trim()) : [];
+    mailToSend.cci = mailToSend.cci ? mailToSend.cci.split(";").map(a => a.trim()) : [];
     mailToSend["map"] = {...this.state.templateParameters};
     this.props.onSend(mailToSend);
     this.setState({
@@ -328,9 +328,9 @@ class MailList extends Component {
   getAllMails() {
     MailApi.getAll()
     .then((res) => {
-      this.setState({err: undefined, mails: res.body});
-    }, (err, res) => {
-      this.setState({err});
+      this.setState({err: false, mails: res.body});
+    }, (err) => {
+      this.setState({err: true, errMsg: `Error ${err.status} (${err.message}) while getting all archived mail`});
     });
   }
 
@@ -363,26 +363,24 @@ class MailList extends Component {
     MailApi.postOne(msg).then(
       (res) => {
         // TODO: Show if mail failed
-        // TODO: Snackbar could allow cancellation
         this.getAllMails();
       },
-      (err, req) => {
-
-        this.setState({err});
+      (err) => {
+        this.setState({err: true, errMsg: `Error ${err.status} (${err.message}) while posting a mail.`});
       }
     );
     this.handlePopupClose();
-  }
+  };
 
   handleOnCancel = (jobLink) => {
     JobApi.remove(jobLink).then(
       (res) => {
         this.getAllMails();
-      },
-      (err, res) => {
-        console.log(err);
+      }, 
+      (err) => {
+          this.setState({err: true, errMsg: `Error ${err.status} (${err.message}) while cancelling a job.`});
       });
-  }
+  };
 
   render() {
     return (
@@ -403,7 +401,7 @@ class MailList extends Component {
           SnackbarContentProps={{
             'aria-describedby': 'message-id',
           }}
-          message={<span id="message-id">Note archived</span>}
+          message={<span id="message-id">{this.state.errMsg}</span>}
           action={[
             <Button key="close" color="accent" dense onClick={this.handleSnackbarClose}>
               CLOSE
@@ -411,9 +409,7 @@ class MailList extends Component {
           ]}
         />
         {
-          this.state.err ?
-            <div>Error recuperating the archived mails</div>
-          : this.state.mails ?
+          this.state.mails ?
             this.state.mails.map(mail => (
               <MailSummary
                 key={mail.url}
