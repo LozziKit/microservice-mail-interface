@@ -248,6 +248,10 @@ class TemplateList extends Component {
 
   componentDidMount() {
     this.getAllTemplates();
+    this.interval = setInterval(() => this.getAllTemplates(), 3000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   getAllTemplates() {

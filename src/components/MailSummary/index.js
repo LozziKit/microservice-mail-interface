@@ -18,12 +18,28 @@ const styles = theme => ({
   },
 });
 
+const StatusColor = Object.freeze({
+  ONGOING: "#0EBFE9",
+  FAILED: "#FF3333",
+  INVALID: "#FFA54F",
+  CANCELLED: "#FFCC11",
+  DONE: "#AEC965",
+});
+
 function MailSummary(props) {
   const { classes } = props;
   return (
     <div>
       <Card>
         <CardContent>
+          <div className={classes.root}>
+            <Typography type="caption">Status:</Typography>
+            <Chip
+              className={classes.chip}
+              label={props.mail.status}
+              style={{background: StatusColor[props.mail.status]}}
+            />
+          </div>
           <div className={classes.root}>
             <Typography type="caption">From:</Typography>
             <Chip
@@ -40,24 +56,36 @@ function MailSummary(props) {
               />
             ))}
           </div>
-          <div className={classes.root}>
-            <Typography type="caption">Cc:</Typography>
-            {props.mail.cc.map(dest => (
-              <Chip
-                className={classes.chip}
-                label={dest}
-              />
-            ))}
-          </div>
-          <div className={classes.root}>
-            <Typography type="caption">Cci:</Typography>
-            {props.mail.cci.map(dest => (
-              <Chip
-                className={classes.chip}
-                label={dest}
-              />
-            ))}
-          </div>
+          {
+            props.mail.cc.length > 0 ?
+            (
+              <div className={classes.root}>
+                <Typography type="caption">Cc:</Typography>
+                {props.mail.cc.map(dest => (
+                  <Chip
+                    className={classes.chip}
+                    label={dest}
+                  />
+                ))}
+              </div>
+            )
+            : ""
+          }
+          {
+            props.mail.cci.length > 0 ?
+            (
+              <div className={classes.root}>
+                <Typography type="caption">Cci:</Typography>
+                {props.mail.cci.map(dest => (
+                  <Chip
+                    className={classes.chip}
+                    label={dest}
+                  />
+                ))}
+              </div>
+            )
+            : ""
+          }
           <div className={classes.root}>
             <Typography type="caption">Subject:</Typography>
             <Chip
@@ -68,6 +96,13 @@ function MailSummary(props) {
         </CardContent>
         <CardActions>
           <Button color="primary" onClick={props.onView}>View</Button>
+          {
+            (props.mail.status === "ONGOING") ?
+            (
+              <Button color="accent" onClick={() => props.onCancel(props.mail.job_url)}>Cancel</Button>
+            )
+            : ""
+          }
         </CardActions>
       </Card>
     </div>

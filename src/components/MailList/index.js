@@ -15,7 +15,7 @@ import AddIcon from 'material-ui-icons/Add';
 import { withStyles } from 'material-ui/styles';
 
 import MailSummary from '../MailSummary';
-import { MailApi, TemplateApi } from '../../api';
+import { MailApi, TemplateApi, JobApi } from '../../api';
 
 const styles = theme => ({
   fab: {
@@ -25,7 +25,7 @@ const styles = theme => ({
   },
 });
 
-let PopupMode = Object.freeze({
+const PopupMode = Object.freeze({
   "CLOSED": 0,
   "NEW_MAIL": 1,
   "READ_MAIL": 2,
@@ -145,7 +145,15 @@ class MailPopup extends Component {
     contents.push(
       <div>
         <Typography type="caption">Body:</Typography>
-        <Typography component="p">{this.props.mail.effectiveContent}</Typography>
+        <Typography component="p">
+          {
+            this.props.mail.effectiveContent.split("\n").map((line) => (
+              <span>
+                {line}<br />
+              </span>
+            ))
+          }
+        </Typography>
       </div>
     );
     return (
@@ -311,9 +319,14 @@ class MailList extends Component {
       popupText: "",
     };
   }
-
+  
   componentDidMount() {
     this.getAllMails();
+    this.interval = setInterval(() => this.getAllMails(), 3000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   getAllMails() {
@@ -365,6 +378,16 @@ class MailList extends Component {
     this.handlePopupClose();
   }
 
+  handleOnCancel = (jobLink) => {
+    JobApi.remove(jobLink).then(
+      (res) => {
+        this.getAllMails();
+      }, 
+      (err, res) => {
+        console.log(err);
+      });
+  }
+
   render() {
     return (
       <div>
@@ -400,7 +423,8 @@ class MailList extends Component {
                 key={mail.url}
                 link={mail.url}
                 mail={mail}
-                onView={() => this.handlePopupOpen(PopupMode.READ_MAIL, mail)} />
+                onView={() => this.handlePopupOpen(PopupMode.READ_MAIL, mail)}
+                onCancel={this.handleOnCancel} />
             ))
           : (<div>There is no archived mail yet.</div>)
         }
