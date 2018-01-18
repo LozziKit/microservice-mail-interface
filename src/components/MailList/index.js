@@ -43,7 +43,7 @@ class MailPopup extends Component {
 
   componentWillReceiveProps(nextProps) {
   }
-  
+
   setMail(updatedMail) {
     let createdMail = {...this.state.createdMail, ...updatedMail};
     this.setState({createdMail})
@@ -64,8 +64,8 @@ class MailPopup extends Component {
     mailToSend["map"] = {...this.state.templateParameters};
     this.props.onSend(mailToSend);
     this.setState({
-      createdMail: {}, 
-      templateParameters: {}, 
+      createdMail: {},
+      templateParameters: {},
       templateParameterNames: []
     });
   };
@@ -74,7 +74,7 @@ class MailPopup extends Component {
 
   /**
    * When the template change save the new value and request the parameters needed from the server.
-   * @param {*} e 
+   * @param {*} e
    */
   handleTemplateChange(e) {
     this.setMail({templateName: e.target.value});
@@ -94,7 +94,7 @@ class MailPopup extends Component {
           }
         } while (match);
         this.setState({templateParameterNames});
-      }, 
+      },
       (err) => {
         this.setState({templateParameterNames: []});
       });
@@ -368,7 +368,7 @@ class MailList extends Component {
   render() {
     return (
       <div>
-        <MailPopup 
+        <MailPopup
           mode={this.state.popupMode}
           onClose={this.handlePopupClose}
           onSend={this.handleSendMessage}
@@ -404,8 +404,8 @@ class MailList extends Component {
             ))
           : (<div>There is no archived mail yet.</div>)
         }
-        <Button fab color="primary" aria-label="add" 
-            className={this.props.classes.fab} 
+        <Button fab color="primary" aria-label="add"
+            className={this.props.classes.fab}
             onClick={() => this.handlePopupOpen(PopupMode.NEW_MAIL, undefined)}>
           <AddIcon />
         </Button>
