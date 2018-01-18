@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Route, Link } from 'react-router-dom';
 
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import AddIcon from 'material-ui-icons/Add';
@@ -84,29 +82,21 @@ class TemplatePopup extends Component {
   generateReadTemplateContent() {
     let contents = [];
     contents.push(
-      <div>
+      <div key="description">
         <Typography type="caption">Description:</Typography>
-        <Typography component="p">{this.state.editableTemplate.description}</Typography>
+        <Typography component="pre">{this.state.editableTemplate.description}</Typography>
       </div>
     );
     contents.push(
-      <div>
+      <div key="subject">
         <Typography type="caption">Subject:</Typography>
         <Typography component="p">{this.state.editableTemplate.subject}</Typography>
       </div>
     );
     contents.push(
-      <div>
+      <div key="body">
         <Typography type="caption">Body:</Typography>
-        <Typography component="p">
-          {
-            this.state.editableTemplate.content.split("\n").map((line) => (
-              <span>
-                {line}<br />
-              </span>
-            ))
-          }
-        </Typography>
+        <Typography component="pre">{this.state.editableTemplate.content}</Typography>
       </div>
     );
     return (
@@ -116,9 +106,10 @@ class TemplatePopup extends Component {
 
   generateEditableTemplateContent() {
     let contents = [];
-    if(this.props.mode == PopupMode.NEW_TEMPLATE) {
+    if(this.props.mode === PopupMode.NEW_TEMPLATE) {
       contents.push(
         <TextField
+          key="name"
           id="full-width"
           label="Name:"
           InputLabelProps={{
@@ -134,6 +125,7 @@ class TemplatePopup extends Component {
     }
     contents.push(
       <TextField
+        key="description"
         id="full-width"
         label="Description:"
         InputLabelProps={{
@@ -149,6 +141,7 @@ class TemplatePopup extends Component {
     );
     contents.push(
       <TextField
+        key="subject"
         id="full-width"
         label="Subject:"
         InputLabelProps={{
@@ -156,6 +149,7 @@ class TemplatePopup extends Component {
         }}
         value={this.state.editableTemplate.subject}
         onChange={(e) => this.setTemplate({subject: e.target.value})}
+        // eslint-disable-next-line
         placeholder="Salutations for ${name}"
         fullWidth
         margin="normal"
@@ -163,6 +157,7 @@ class TemplatePopup extends Component {
     );
     contents.push(
       <TextField
+        key="body"
         id="full-width"
         label="Body:"
         InputLabelProps={{
@@ -170,6 +165,7 @@ class TemplatePopup extends Component {
         }}
         value={this.state.editableTemplate.content}
         onChange={(e) => this.setTemplate({content: e.target.value})}
+        // eslint-disable-next-line
         placeholder="Hello ${name}"
         fullWidth
         multiline
@@ -185,7 +181,7 @@ class TemplatePopup extends Component {
     let title = "";
     let content;
     let buttons = [
-      (<Button onClick={this.props.onClose} color="primary">
+      (<Button key="cancel" onClick={this.props.onClose} color="primary">
         Cancel
       </Button>),
     ]
@@ -194,7 +190,7 @@ class TemplatePopup extends Component {
         title = "New Template";
         content = this.generateEditableTemplateContent();
         buttons.push(
-          <Button onClick={this.handleOnSubmit} color="primary">
+          <Button key="submit" onClick={this.handleOnSubmit} color="primary">
             Submit
           </Button>
         );
@@ -207,7 +203,7 @@ class TemplatePopup extends Component {
         title = `Edit: ${this.props.template.name}`;
         content = this.generateEditableTemplateContent();
         buttons.push(
-          <Button onClick={this.handleOnSubmit} color="primary">
+          <Button key="save" onClick={this.handleOnSubmit} color="primary">
             Save
           </Button>
         );
@@ -246,6 +242,8 @@ class TemplateList extends Component {
     };
   }
 
+  interval;
+
   componentDidMount() {
     this.getAllTemplates();
     this.interval = setInterval(() => this.getAllTemplates(), 3000);
@@ -265,6 +263,11 @@ class TemplateList extends Component {
   }
 
   handlePopupChangeMode = (mode, t) => {
+    if(mode === PopupMode.CLOSED) {
+      this.interval = setInterval(() => this.getAllTemplates(), 3000);
+    } else {
+      clearInterval(this.interval);
+    }
     this.setState({
       ...this.state,
       popupMode: mode,
@@ -295,7 +298,9 @@ class TemplateList extends Component {
     });
   };
 
-  handlePopupClose = () => this.handlePopupChangeMode(PopupMode.CLOSED, undefined);
+  handlePopupClose = () => {
+    this.handlePopupChangeMode(PopupMode.CLOSED, undefined);
+  };
   handlePopupNewTemplate = () => this.handlePopupChangeMode(PopupMode.NEW_TEMPLATE, undefined);
   handlePopupReadTemplate = (t) => this.handlePopupChangeMode(PopupMode.READ_TEMPLATE, t);
   handlePopupModifyTemplate = (t) => this.handlePopupChangeMode(PopupMode.MODIFY_TEMPLATE, t);

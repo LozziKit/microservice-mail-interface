@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { Route, Link } from 'react-router-dom';
+import React from 'react';
 
 import { withStyles } from 'material-ui/styles';
 import Card, { CardActions, CardContent } from 'material-ui/Card';
@@ -18,11 +17,10 @@ const styles = theme => ({
   },
 });
 
-const StatusColor = Object.freeze({
+const StatusColor = Object.freeze({CANCELLED: "#cdcaca",
   ONGOING: "#0EBFE9",
-  FAILED: "#FF3333",
+  FAILED: "#F26D6D",
   INVALID: "#FFA54F",
-  CANCELLED: "#FFCC11",
   DONE: "#AEC965",
 });
 
@@ -51,6 +49,7 @@ function MailSummary(props) {
             <Typography type="caption">To:</Typography>
             {props.mail.to.map(dest => (
               <Chip
+                key={dest}
                 className={classes.chip}
                 label={dest}
               />
@@ -63,6 +62,7 @@ function MailSummary(props) {
                 <Typography type="caption">Cc:</Typography>
                 {props.mail.cc.map(dest => (
                   <Chip
+                    key={dest}
                     className={classes.chip}
                     label={dest}
                   />
@@ -78,6 +78,7 @@ function MailSummary(props) {
                 <Typography type="caption">Cci:</Typography>
                 {props.mail.cci.map(dest => (
                   <Chip
+                    key={dest}
                     className={classes.chip}
                     label={dest}
                   />

@@ -7,8 +7,8 @@ import Toolbar from 'material-ui/Toolbar';
 import Button from 'material-ui/Button';
 
 import Settings from '../Settings';
-import TemplateManager from '../TemplateManager';
-import MailManager from '../MailManager';
+import TemplateList from '../TemplateList';
+import MailList from '../MailList';
 
 class App extends Component {
   render() {
@@ -31,8 +31,8 @@ class App extends Component {
           </Toolbar>
         </AppBar>
         <Route exact path="/" component={Home} />
-        <Route path="/templates" component={TemplateManager} />
-        <Route path="/mails" component={MailManager} />
+        <Route path="/templates" component={TemplateList} />
+        <Route path="/mails" component={MailList} />
         </div>
       </Router>
     );

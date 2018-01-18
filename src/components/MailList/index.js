@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Route, Link } from 'react-router-dom';
 
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import Typography from 'material-ui/Typography';
@@ -103,57 +101,49 @@ class MailPopup extends Component {
   generateReadMailContent() {
     let contents = [];
     contents.push(
-      <div>
+      <div key="templateName">
         <Typography type="caption">Template:</Typography>
         <Typography component="p">{this.props.mail.templateName}</Typography>
       </div>
     );
     contents.push(
-      <div>
+      <div key="from">
         <Typography type="caption">From:</Typography>
         <Typography component="p">{this.props.mail.from}</Typography>
       </div>
     );
     contents.push(
-      <div>
+      <div key="to">
         <Typography type="caption">To:</Typography>
-        {this.props.mail.to.map(dest => (<Typography component="p">{dest}</Typography>))}
+        {this.props.mail.to.map(dest => (<Typography key={dest} component="p">{dest}</Typography>))}
       </div>
     );
     if(this.props.mail.cc.length > 0) {
       contents.push(
-        <div>
+        <div key="cc">
           <Typography type="caption">Cc:</Typography>
-          {this.props.mail.cc.map(dest => (<Typography component="p">{dest}</Typography>))}
+          {this.props.mail.cc.map(dest => (<Typography key={dest} component="p">{dest}</Typography>))}
         </div>
       );
     }
     if(this.props.mail.cc.length > 0) {
       contents.push(
-        <div>
+        <div key="cci">
           <Typography type="caption">Cci:</Typography>
-          {this.props.mail.cci.map(dest => (<Typography component="p">{dest}</Typography>))}
+          {this.props.mail.cci.map(dest => (<Typography key={dest} component="p">{dest}</Typography>))}
         </div>
       );
     }
     contents.push(
-      <div>
+      <div key="subject">
         <Typography type="caption">Subject:</Typography>
         <Typography component="p">{this.props.mail.subject}</Typography>
       </div>
     );
     contents.push(
-      <div>
+      <div key="body">
         <Typography type="caption">Body:</Typography>
-        <Typography component="p">
-          {
-            this.props.mail.effectiveContent.split("\n").map((line) => (
-              <span>
-                {line}<br />
-              </span>
-            ))
-          }
-        </Typography>
+        <Typography component="pre">{this.props.mail.effectiveContent}</Typography>
       </div>
     );
     return (
@@ -165,6 +155,7 @@ class MailPopup extends Component {
     let contents = [];
     contents.push(
       <TextField
+        key="templateName"
         id="full-width"
         label="Template:"
         InputLabelProps={{
@@ -179,6 +170,7 @@ class MailPopup extends Component {
     );
     contents.push(
       <TextField
+        key="from"
         id="full-width"
         label="From:"
         InputLabelProps={{
@@ -194,6 +186,7 @@ class MailPopup extends Component {
     );
     contents.push(
       <TextField
+        key="to"
         id="full-width"
         label="To:"
         InputLabelProps={{
@@ -209,6 +202,7 @@ class MailPopup extends Component {
     );
     contents.push(
       <TextField
+        key="cc"
         id="full-width"
         label="Cc:"
         InputLabelProps={{
@@ -224,6 +218,7 @@ class MailPopup extends Component {
     );
     contents.push(
       <TextField
+        key="cci"
         id="full-width"
         label="Cci:"
         InputLabelProps={{
@@ -239,10 +234,11 @@ class MailPopup extends Component {
     );
     if(this.state.templateParameterNames.length > 0) {
       contents.push(
-        <div>
-          <Typography type="header">Parameters:</Typography>
+        <div key="parameters">
+          <Typography type="headline">With parameters:</Typography>
           {this.state.templateParameterNames.map(param => (
             <TextField
+              key={param}
               id="full-width"
               label={param}
               InputLabelProps={{
@@ -265,7 +261,7 @@ class MailPopup extends Component {
   render() {
     let title = "";
     let buttons = [
-      (<Button onClick={this.props.onClose} color="primary">
+      (<Button key="cancel" onClick={this.props.onClose} color="primary">
         Cancel
       </Button>),
     ]
@@ -275,7 +271,7 @@ class MailPopup extends Component {
         title = "Send a new mail";
         content = this.generateNewMailContent();
         buttons.push(
-          <Button
+          <Button key="send"
               onClick={() => this.handleOnSend()} color="primary">
             Send
           </Button>
