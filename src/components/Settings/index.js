@@ -10,6 +10,9 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 import config from '../../api/config.js';
 
+/**
+ * A settings component to edit the global setting of the app.
+ */
 class Settings extends Component {
   constructor(props) {
     super(props);
@@ -20,18 +23,30 @@ class Settings extends Component {
     };
   }
 
+  /**
+   * Open the setting popup.
+   */
   handleSettingOpen = () => {
     this.setState({...this.state, settingOpen: true});
   };
 
+  /**
+   * Close the setting popup.
+   */
   handleSettingClose = () => {
     this.setState({...this.state, settingOpen: false});
   };
-  
+
+  /**
+   * Reset the data of the setting popup to the saved data.
+   */
   handleSettingReset = () => {
     this.setState({...this.state, ...config, saved: true});
   };
 
+  /**
+   * Save the edited setting data.
+   */
   handleSettingSave = () => {
     config.baseUrl = this.state.baseUrl;
     this.setState({...this.state, saved: true});
@@ -54,7 +69,7 @@ class Settings extends Component {
                 To configure the application please change and save the values of this form.
               </DialogContentText>
               <TextField
-                id="full-width"
+                id="baseServerEdit"
                 label="Base server URL"
                 InputLabelProps={{
                   shrink: true,

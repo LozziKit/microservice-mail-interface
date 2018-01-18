@@ -23,12 +23,19 @@ const styles = theme => ({
   },
 });
 
+/**
+ * Enum of the possible mode of the popup.
+ * @type {Readonly<{CLOSED: number, NEW_MAIL: number, READ_MAIL: number}>}
+ */
 const PopupMode = Object.freeze({
   "CLOSED": 0,
   "NEW_MAIL": 1,
   "READ_MAIL": 2,
 });
 
+/**
+ * A popup to Create OR View an archived mail.
+ */
 class MailPopup extends Component {
   constructor(props) {
     super(props);
@@ -39,14 +46,20 @@ class MailPopup extends Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-  }
-
+  /**
+   * Change the state of the internal mail representation.
+   * @param updatedMail A mail object with only the field that must change.
+   */
   setMail(updatedMail) {
     let createdMail = {...this.state.createdMail, ...updatedMail};
     this.setState({createdMail})
   }
 
+  /**
+   * Change the state of the internal representation of the wanted template parameters.
+   * @param name The name of the parameter to change.
+   * @param value The new value of the parameter.
+   */
   setTemplateParameters(name, value) {
     let updatedParameters = {};
     updatedParameters[name] = value;
@@ -54,6 +67,10 @@ class MailPopup extends Component {
     this.setState({templateParameters})
   }
 
+  /**
+   * Send the mail (in the proper format) to the parent onSend handler.
+   * Reset the internal mail and template parameters representation.
+   */
   handleOnSend() {
     let mailToSend = {...this.state.createdMail};
     mailToSend.to = mailToSend.to ? mailToSend.to.split(";").map(a => a.trim()) : [];
@@ -68,11 +85,15 @@ class MailPopup extends Component {
     });
   };
 
+  /**
+   * The request used to get the parameters of the named template.
+   */
   templateRequest;
 
   /**
    * When the template change save the new value and request the parameters needed from the server.
-   * @param {*} e
+   * Parses the content of the template to find the parameters.
+   * @param {*} e The event object fired by the TextField.
    */
   handleTemplateChange(e) {
     this.setMail({templateName: e.target.value});
@@ -98,6 +119,10 @@ class MailPopup extends Component {
       });
   }
 
+  /**
+   * Generate the content of the popup when the user wants to view a mail.
+   * @returns {*} An array of JSX elements.
+   */
   generateReadMailContent() {
     let contents = [];
     contents.push(
@@ -151,12 +176,16 @@ class MailPopup extends Component {
     );
   }
 
+  /**
+   * Generate the content of the popup when the user wants to create (send) a mail.
+   * @returns {*} An array of JSX elements.
+   */
   generateNewMailContent() {
     let contents = [];
     contents.push(
       <TextField
         key="templateName"
-        id="full-width"
+        id="templateNameEdit"
         label="Template:"
         InputLabelProps={{
           shrink: true,
@@ -165,13 +194,13 @@ class MailPopup extends Component {
         onChange={(e) => this.handleTemplateChange(e)}
         placeholder="template1"
         fullWidth
-        margin="normal"
+        margin="dense"
       />
     );
     contents.push(
       <TextField
         key="from"
-        id="full-width"
+        id="fromEdit"
         label="From:"
         InputLabelProps={{
           shrink: true,
@@ -181,13 +210,13 @@ class MailPopup extends Component {
         placeholder="hello@world.org"
         type="email"
         fullWidth
-        margin="normal"
+        margin="dense"
       />
     );
     contents.push(
       <TextField
         key="to"
-        id="full-width"
+        id="toEdit"
         label="To:"
         InputLabelProps={{
           shrink: true,
@@ -195,15 +224,15 @@ class MailPopup extends Component {
         value={this.state.createdMail.to}
         onChange={(e) => this.setMail({to: e.target.value})}
         helperText="Email addresses separated by semicolons (;)"
-        placeholder="hello@world.org"
+        placeholder="hello@world.org; another@email.ch"
         fullWidth
-        margin="normal"
+        margin="dense"
       />
     );
     contents.push(
       <TextField
         key="cc"
-        id="full-width"
+        id="ccEdit"
         label="Cc:"
         InputLabelProps={{
           shrink: true,
@@ -213,13 +242,13 @@ class MailPopup extends Component {
         helperText="Email addresses separated by semicolons (;)"
         placeholder="hello@world.org"
         fullWidth
-        margin="normal"
+        margin="dense"
       />
     );
     contents.push(
       <TextField
         key="cci"
-        id="full-width"
+        id="cciEdit"
         label="Cci:"
         InputLabelProps={{
           shrink: true,
@@ -229,7 +258,7 @@ class MailPopup extends Component {
         helperText="Email addresses separated by semicolons (;)"
         placeholder="hello@world.org"
         fullWidth
-        margin="normal"
+        margin="dense"
       />
     );
     if(this.state.templateParameterNames.length > 0) {
@@ -239,7 +268,7 @@ class MailPopup extends Component {
           {this.state.templateParameterNames.map(param => (
             <TextField
               key={param}
-              id="full-width"
+              id={`${param}Edit`}
               label={param}
               InputLabelProps={{
                 shrink: true,
@@ -247,7 +276,7 @@ class MailPopup extends Component {
               value={this.state.templateParameters[param]}
               onChange={(e) => this.setTemplateParameters(param, e.target.value)}
               fullWidth
-              margin="normal"
+              margin="dense"
             />
           ))}
         </div>
@@ -305,6 +334,10 @@ class MailPopup extends Component {
   }
 }
 
+/**
+ * A list of archived mail that refreshes automatically.
+ * Allow the viewing of its composing mails and to send more.
+ */
 class MailList extends Component {
   constructor(props) {
     super(props);
@@ -316,15 +349,24 @@ class MailList extends Component {
     };
   }
 
+  /**
+   * Recuperate the archived mail when the component is mounted and start the timer to auto-refresh.
+   */
   componentDidMount() {
     this.getAllMails();
     this.interval = setInterval(() => this.getAllMails(), 3000);
   }
 
+  /**
+   * Stop auto-refreshing when the component unmount.
+   */
   componentWillUnmount() {
     clearInterval(this.interval);
   }
 
+  /**
+   * Recuperate the archived mails with the Api and handle the error that may occur.
+   */
   getAllMails() {
     MailApi.getAll()
     .then((res) => {
@@ -334,7 +376,12 @@ class MailList extends Component {
     });
   }
 
-  handlePopupOpen = (mode, mail) => {
+  /**
+   * Open or close the popup in function of the current mode.
+   * @param mode The new mode.
+   * @param mail The mail information for the popup.
+   */
+  handlePopupMode = (mode, mail) => {
     this.setState({
       ...this.state,
       popupMode: mode,
@@ -342,14 +389,18 @@ class MailList extends Component {
     });
   };
 
+  /**
+   * Close the popup.
+   */
   handlePopupClose = () => {
-    this.setState({
-      ...this.state,
-      popupMode: PopupMode.CLOSED,
-      popupMail: undefined,
-    });
+      this.handlePopupMode(PopupMode.CLOSED);
   };
 
+  /**
+   * Close the snackbar.
+   * @param event
+   * @param reason
+   */
   handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -358,11 +409,14 @@ class MailList extends Component {
     this.setState({ err: false });
   }
 
+  /**
+   * Request to send a mail and handle the response.
+   * @param msg The mail to send.
+   */
   handleSendMessage = (msg) => {
     console.log(msg);
     MailApi.postOne(msg).then(
       (res) => {
-        // TODO: Show if mail failed
         this.getAllMails();
       },
       (err) => {
@@ -372,6 +426,10 @@ class MailList extends Component {
     this.handlePopupClose();
   };
 
+  /**
+   * Request to cancel an ongoing mail (job) and handle the response.
+   * @param jobLink The link to job to cancel.
+   */
   handleOnCancel = (jobLink) => {
     JobApi.remove(jobLink).then(
       (res) => {
@@ -415,14 +473,14 @@ class MailList extends Component {
                 key={mail.url}
                 link={mail.url}
                 mail={mail}
-                onView={() => this.handlePopupOpen(PopupMode.READ_MAIL, mail)}
+                onView={() => this.handlePopupMode(PopupMode.READ_MAIL, mail)}
                 onCancel={this.handleOnCancel} />
             ))
-          : (<div>There is no archived mail yet.</div>)
+          : (<div style={{marginTop: "3em", textAlign: "center"}}><Typography type="display2" color="secondary">There is no archived mail yet.</Typography></div>)
         }
         <Button fab color="primary" aria-label="add"
             className={this.props.classes.fab}
-            onClick={() => this.handlePopupOpen(PopupMode.NEW_MAIL, undefined)}>
+            onClick={() => this.handlePopupMode(PopupMode.NEW_MAIL, undefined)}>
           <AddIcon />
         </Button>
       </div>

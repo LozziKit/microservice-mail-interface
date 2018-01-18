@@ -7,9 +7,13 @@ import Toolbar from 'material-ui/Toolbar';
 import Button from 'material-ui/Button';
 
 import Settings from '../Settings';
+import Home from '../Home';
 import TemplateList from '../TemplateList';
 import MailList from '../MailList';
 
+/**
+ * Entry component of the application.
+ */
 class App extends Component {
   render() {
     return (
@@ -38,11 +42,5 @@ class App extends Component {
     );
   }
 }
-
-const Home = () => (
-  <div>
-    <Typography type="title" color="inherit" style={{textAlign: "center"}} >Welcome !</Typography>
-  </div>
-)
 
 export default App;

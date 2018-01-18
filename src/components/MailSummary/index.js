@@ -6,6 +6,11 @@ import Button from 'material-ui/Button';
 import Chip from 'material-ui/Chip';
 import Typography from 'material-ui/Typography';
 
+/**
+ * The style to apply to the MailSummary component.
+ * @param theme
+ * @returns {{root: {display: string, flexWrap: string, alignItems: string}, chip: {margin}}}
+ */
 const styles = theme => ({
   root: {
     display: 'flex',
@@ -17,6 +22,10 @@ const styles = theme => ({
   },
 });
 
+/**
+ * The color matching a possible status.
+ * @type {Readonly<{CANCELLED: string, ONGOING: string, FAILED: string, INVALID: string, DONE: string}>}
+ */
 const StatusColor = Object.freeze({CANCELLED: "#cdcaca",
   ONGOING: "#0EBFE9",
   FAILED: "#F26D6D",
@@ -24,6 +33,12 @@ const StatusColor = Object.freeze({CANCELLED: "#cdcaca",
   DONE: "#AEC965",
 });
 
+/**
+ * The summary of a given archived mail.
+ * @param props
+ * @returns {*}
+ * @constructor
+ */
 function MailSummary(props) {
   const { classes } = props;
   return (

@@ -16,13 +16,17 @@ import { TemplateApi } from '../../api';
 import Snackbar from "material-ui/Snackbar";
 
 const styles = theme => ({
-  fab: {
+  fab: { // style of the add button
     position: 'fixed',
     bottom: theme.spacing.unit * 2,
     right: theme.spacing.unit * 2,
   },
 });
 
+/**
+ * Enum of the possible mode of the popup.
+ * @type {Readonly<{CLOSED: number, NEW_TEMPLATE: number, READ_TEMPLATE: number, MODIFY_TEMPLATE: number}>}
+ */
 let PopupMode = Object.freeze({
   "CLOSED": 0,
   "NEW_TEMPLATE": 1,
@@ -30,6 +34,9 @@ let PopupMode = Object.freeze({
   "MODIFY_TEMPLATE": 3,
 });
 
+/**
+ * A popup to Edit OR Create OR View a template.
+ */
 class TemplatePopup extends Component {
   constructor(props) {
     super(props);
@@ -38,10 +45,19 @@ class TemplatePopup extends Component {
     };
   }
 
+  /**
+   * The default value of the different field.
+   * @type {{subject: string}}
+   */
   defaultEditableTemplate = {
+    description: "",
     subject: "",
   }
 
+  /**
+   * When new props are received, parse them to assign the template data to the fields.
+   * @param nextProps The next values of the props.
+   */
   componentWillReceiveProps(nextProps) {
     if(nextProps.template !== undefined) {
       let parts = nextProps.template.content.split("\n\n");
@@ -62,11 +78,19 @@ class TemplatePopup extends Component {
     }
   }
 
+  /**
+   * Change the state of the internal template representation.
+   * @param updatedTemplate A template object with only the field that must change.
+   */
   setTemplate(updatedTemplate) {
     let editableTemplate = {...this.state.editableTemplate, ...updatedTemplate};
     this.setState({editableTemplate})
   }
 
+  /**
+   * Submit the template (in the proper format) to the parent onSubmit handler.
+   * Reset the internal template representation.
+   */
   handleOnSubmit = () => {
     let templateToSubmit = {
       name: this.state.editableTemplate.name,
@@ -84,6 +108,10 @@ class TemplatePopup extends Component {
     });
   };
 
+  /**
+   * Generate the content of the popup when the user wants to view a template.
+   * @returns {*} An array of JSX elements.
+   */
   generateReadTemplateContent() {
     let contents = [];
     contents.push(
@@ -109,29 +137,33 @@ class TemplatePopup extends Component {
     );
   }
 
+  /**
+   * Generate the content of the popup when the user wants to edit or create a template.
+   * @returns {*} An array of JSX elements.
+   */
   generateEditableTemplateContent() {
     let contents = [];
     if(this.props.mode === PopupMode.NEW_TEMPLATE) {
       contents.push(
         <TextField
           key="name"
-          id="full-width"
+          id="nameEdit"
           label="Name:"
           InputLabelProps={{
             shrink: true,
           }}
           value={this.state.editableTemplate.name}
           onChange={(e) => this.setTemplate({name: e.target.value})}
-          placeholder="template1"
+          placeholder="templateName1"
           fullWidth
-          margin="normal"
+          margin="dense"
         />
       );
     }
     contents.push(
       <TextField
         key="description"
-        id="full-width"
+        id="descriptionEdit"
         label="Description:"
         InputLabelProps={{
           shrink: true,
@@ -141,13 +173,13 @@ class TemplatePopup extends Component {
         placeholder="Description of the template"
         multiline
         fullWidth
-        margin="normal"
+        margin="dense"
       />
     );
     contents.push(
       <TextField
         key="subject"
-        id="full-width"
+        id="subjectEdit"
         label="Subject:"
         InputLabelProps={{
           shrink: true,
@@ -157,13 +189,13 @@ class TemplatePopup extends Component {
         // eslint-disable-next-line
         placeholder="Salutations for ${name}"
         fullWidth
-        margin="normal"
+        margin="dense"
       />
     );
     contents.push(
       <TextField
         key="body"
-        id="full-width"
+        id="bodyEdit"
         label="Body:"
         InputLabelProps={{
           shrink: true,
@@ -174,7 +206,7 @@ class TemplatePopup extends Component {
         placeholder="Hello ${name}"
         fullWidth
         multiline
-        margin="normal"
+        margin="dense"
       />
     );
     return (
@@ -237,6 +269,10 @@ class TemplatePopup extends Component {
   }
 }
 
+/**
+ * A list of templates that refreshes automatically.
+ * Allow the edition and viewing of its composing templates and to create more.
+ */
 class TemplateList extends Component {
   constructor(props) {
     super(props);
@@ -247,16 +283,29 @@ class TemplateList extends Component {
     };
   }
 
+  /**
+   * The interval object used to refresh periodically.
+   */
   interval;
 
+  /**
+   * Recuperate the template when the component is mounted and start the timer to auto-refresh.
+   */
   componentDidMount() {
     this.getAllTemplates();
     this.interval = setInterval(() => this.getAllTemplates(), 3000);
   }
+
+  /**
+   * Stop auto-refreshing when the component unmount.
+   */
   componentWillUnmount() {
     clearInterval(this.interval);
   }
 
+  /**
+   * Recuperate the templates with the Api and handle the error that may occur.
+   */
   getAllTemplates() {
     TemplateApi.getAll()
     .then((res) => {
@@ -266,10 +315,16 @@ class TemplateList extends Component {
     });
   }
 
+  /**
+   * Open or close the popup in function of the current mode.
+   * @param mode The new mode.
+   * @param t The template information for the popup.
+   */
   handlePopupChangeMode = (mode, t) => {
     if(mode === PopupMode.CLOSED) {
       this.interval = setInterval(() => this.getAllTemplates(), 3000);
     } else {
+      // Do not refresh information while modifying a template.
       clearInterval(this.interval);
     }
     this.setState({
@@ -279,8 +334,11 @@ class TemplateList extends Component {
     });
   };
 
+  /**
+   * Submit the template to the server (updating or creating). And handle the response.
+   * @param template The template that will be submitted.
+   */
   handlePopupSubmit = (template) => {
-    console.log(template);
     let request;
     if(template.url) {
       // PUT the template
@@ -302,6 +360,25 @@ class TemplateList extends Component {
     });
   };
 
+  /**
+   * Request the deletion of a template and handle the response.
+   * @param template The template to delete.
+   */
+  handleDelete = (template) => {
+    TemplateApi.remove(template.url).then(
+        (req) => {
+          this.getAllTemplates()
+        },
+        (err) => {
+          this.setState({err: true, errMsg: `Error ${err.status} (${err.message}) while deleting a template`});
+        });
+  }
+
+  /**
+   * Close the snackbar.
+   * @param event
+   * @param reason
+   */
   handleSnackbarClose = (event, reason) => {
       if (reason === 'clickaway') {
           return;
@@ -310,20 +387,13 @@ class TemplateList extends Component {
       this.setState({ err: false });
   }
 
-  handlePopupClose = () => {
-    this.handlePopupChangeMode(PopupMode.CLOSED, undefined);
-  };
-  handlePopupNewTemplate = () => this.handlePopupChangeMode(PopupMode.NEW_TEMPLATE, undefined);
-  handlePopupReadTemplate = (t) => this.handlePopupChangeMode(PopupMode.READ_TEMPLATE, t);
-  handlePopupModifyTemplate = (t) => this.handlePopupChangeMode(PopupMode.MODIFY_TEMPLATE, t);
-
   render() {
     return (
       <div>
         <TemplatePopup
           mode={this.state.popupMode}
           template={this.state.popupTemplate}
-          onClose={this.handlePopupClose}
+          onClose={() => this.handlePopupChangeMode(PopupMode.CLOSED, undefined)}
           onSubmit={this.handlePopupSubmit}
         />
         <Snackbar
@@ -352,16 +422,14 @@ class TemplateList extends Component {
               link={t.url}
               name={t.name}
               description={t.description}
-              onView={() => this.handlePopupReadTemplate(t)}
-              onModify={() => this.handlePopupModifyTemplate(t)}
-              onDelete={() => TemplateApi.remove(t.url)
-                .then((req) => this.getAllTemplates(), (err) => console.log(err))} />
-          ))
-        : <div>There is no template yet.</div>
+              onView={() => this.handlePopupChangeMode(PopupMode.READ_TEMPLATE, t)}
+              onModify={() => this.handlePopupChangeMode(PopupMode.MODIFY_TEMPLATE, t)}
+              onDelete={() => this.handleDelete(t)} />
+          )) : (<div style={{marginTop: "3em", textAlign: "center"}}><Typography type="display2" color="secondary">There is no template yet.</Typography></div>)
         }
         <Button fab color="primary" aria-label="add"
           className={this.props.classes.fab}
-          onClick={this.handlePopupNewTemplate}
+          onClick={() => this.handlePopupChangeMode(PopupMode.NEW_TEMPLATE, undefined)}
         >
           <AddIcon />
         </Button>
