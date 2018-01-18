@@ -84,17 +84,17 @@ class MailPopup extends Component {
     this.templateRequest = TemplateApi.getNamed(e.target.value);
     this.templateRequest.then(
       (res) => {
-        let regex = /\${(.*)}/g;
+        let regex = /\${([^}]*)}/g;
         let match;
-        let templateParameterNames = [];
+        let templateParameterNames = new Set();
         do {
           match = regex.exec(res.body.content);
           if(match) {
-            templateParameterNames.push(match[1]);
+            templateParameterNames.add(match[1]);
           }
         } while (match);
-        this.setState({templateParameterNames});
-      },
+        this.setState({templateParameterNames: Array.from(templateParameterNames)});
+      }, 
       (err) => {
         this.setState({templateParameterNames: []});
       });

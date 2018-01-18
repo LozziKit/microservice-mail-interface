@@ -3,12 +3,12 @@ import config from './config';
 
 function getAll() {
     return request
-        .get(`${config.baseUrl}/mails`);
+        .get(`${config.baseUrl}${config.contextPath}/mails`);
 }
 
 function post(mails) {
     return request
-        .post(`${config.baseUrl}/mails`)
+        .post(`${config.baseUrl}${config.contextPath}/mails`)
         .type('json')
         .send(mails);
 }

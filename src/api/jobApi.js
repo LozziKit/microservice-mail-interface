@@ -3,12 +3,12 @@ import config from './config';
 
 function getAll() {
     return request
-        .get(`${config.baseUrl}/jobs`);
+        .get(`${config.baseUrl}${config.contextPath}/jobs`);
 }
 
 function post(job) {
     return request
-        .post(`${config.baseUrl}/jobs`)
+        .post(`${config.baseUrl}${config.contextPath}/jobs`)
         .type('json')
         .send(job);
 }

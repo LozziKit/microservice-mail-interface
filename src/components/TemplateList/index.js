@@ -31,119 +31,207 @@ let PopupMode = Object.freeze({
   "MODIFY_TEMPLATE": 3,
 });
 
-class TemplatePopupTitle extends Component {
-  render() {
-    switch(this.props.mode) {
-      case PopupMode.NEW_TEMPLATE:
-        return <DialogTitle id="form-dialog-title">New Template</DialogTitle>;
-      default:
-        return <DialogTitle id="form-dialog-title">{this.props.value}</DialogTitle>;
-    }
-  }
-}
-
-class TemplatePopupContent extends Component {
-  render() {
-    switch(this.props.mode) {
-      case PopupMode.NEW_TEMPLATE:
-        return (
-          <DialogContent>
-            <DialogContentText>
-              Title of the new template
-            </DialogContentText>
-            <TextField placeholder={this.props.content} />
-            <DialogContentText>
-              Content of the new template
-            </DialogContentText>
-            <TextField multiline placeholder={"..."} />
-          </DialogContent>
-        );
-      case PopupMode.READ_TEMPLATE:
-        return (
-          <DialogContent>
-            <DialogContentText>
-              Content of the template
-            </DialogContentText>
-            <Typography component="p">
-              {
-                this.props.content.split("\n").map((line) => (
-                  <span>
-                    {line}<br />
-                  </span>
-                ))
-              }
-            </Typography>
-          </DialogContent>
-        );
-      case PopupMode.MODIFY_TEMPLATE:
-        return (
-          <DialogContent>
-            <DialogContentText>
-              New content for the template
-            </DialogContentText>
-            <TextField
-              multiline
-              defaultValue={ this.props.content}
-            />
-          </DialogContent>
-        );
-      default:
-        return null;
-    }
-  }
-}
-
-class TemplatePopupActions extends Component {
-  render() {
-    switch(this.props.mode) {
-      case PopupMode.READ_TEMPLATE:
-        return (
-          <DialogActions>
-            <Button onClick={this.props.onClose} color="primary">
-              Close
-            </Button>
-          </DialogActions>
-        );
-      case PopupMode.NEW_TEMPLATE:
-      case PopupMode.MODIFY_TEMPLATE:
-        return (
-          <DialogActions>
-            <Button onClick={this.props.onClose} color="primary">
-              Submit
-            </Button>
-            <Button onClick={this.props.onClose} color="primary">
-              Cancel
-            </Button>
-          </DialogActions>
-        );
-      default:
-        return null;
-    }
-  }
-}
-
 class TemplatePopup extends Component {
-  render() {
-    if (this.props.template === undefined) {
-      return null;
+  constructor(props) {
+    super(props);
+    this.state = {
+      editableTemplate: {},
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.template !== undefined) {
+      let parts = nextProps.template.content.split("\n\n");
+      let header = parts.shift();
+      let body = parts.join("\n\n");
+      let metaValues = {};
+      header.split("\n").forEach(meta => {
+        let [name, value] = meta.split(":").map(e => e.trim().toLowerCase());
+        metaValues[name] = value;
+      });
+      let editableTemplate = {
+        name: nextProps.template.name,
+        description: nextProps.template.description,
+        subject: metaValues.subject,
+        content: body,
+      }
+      this.setState({editableTemplate});
+    }
+  }
+  
+  setTemplate(updatedTemplate) {
+    let editableTemplate = {...this.state.editableTemplate, ...updatedTemplate};
+    this.setState({editableTemplate})
+  }
+
+  handleOnSubmit = () => {
+    let templateToSubmit = {
+      name: this.state.editableTemplate.name,
+      description: this.state.editableTemplate.description,
+      content: `Subject:${this.state.editableTemplate.subject}\n\n${this.state.editableTemplate.content}`
+    };
+
+    if(this.props.mode === PopupMode.MODIFY_TEMPLATE) {
+      templateToSubmit.url = this.props.template.url;
     }
 
-    console.log(this.props.template.content);
+    this.props.onSubmit(templateToSubmit);
+    this.setState({
+      editableTemplate: {},
+    });
+  };
+
+  generateReadTemplateContent() {
+    let contents = [];
+    contents.push(
+      <div>
+        <Typography type="caption">Description:</Typography>
+        <Typography component="p">{this.state.editableTemplate.description}</Typography>
+      </div>
+    );
+    contents.push(
+      <div>
+        <Typography type="caption">Subject:</Typography>
+        <Typography component="p">{this.state.editableTemplate.subject}</Typography>
+      </div>
+    );
+    contents.push(
+      <div>
+        <Typography type="caption">Body:</Typography>
+        <Typography component="p">
+          {
+            this.state.editableTemplate.content.split("\n").map((line) => (
+              <span>
+                {line}<br />
+              </span>
+            ))
+          }
+        </Typography>
+      </div>
+    );
+    return (
+      <div>{contents}</div>
+    );
+  }
+
+  generateEditableTemplateContent() {
+    let contents = [];
+    if(this.props.mode == PopupMode.NEW_TEMPLATE) {
+      contents.push(
+        <TextField
+          id="full-width"
+          label="Name:"
+          InputLabelProps={{
+            shrink: true,
+          }}
+          value={this.state.editableTemplate.name}
+          onChange={(e) => this.setTemplate({name: e.target.value})}
+          placeholder="template1"
+          fullWidth
+          margin="normal"
+        />
+      );
+    }
+    contents.push(
+      <TextField
+        id="full-width"
+        label="Description:"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        value={this.state.editableTemplate.description}
+        onChange={(e) => this.setTemplate({description: e.target.value})}
+        placeholder="Description of the template"
+        multiline
+        fullWidth
+        margin="normal"
+      />
+    );
+    contents.push(
+      <TextField
+        id="full-width"
+        label="Subject:"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        value={this.state.editableTemplate.subject}
+        onChange={(e) => this.setTemplate({subject: e.target.value})}
+        placeholder="Salutations for ${name}"
+        fullWidth
+        margin="normal"
+      />
+    );
+    contents.push(
+      <TextField
+        id="full-width"
+        label="Body:"
+        InputLabelProps={{
+          shrink: true,
+        }}
+        value={this.state.editableTemplate.content}
+        onChange={(e) => this.setTemplate({content: e.target.value})}
+        placeholder="Hello ${name}"
+        fullWidth
+        multiline
+        margin="normal"
+      />
+    );
+    return (
+      <form>{contents}</form>
+    );
+  }
+
+  render() {
+    let title = "";
+    let content;
+    let buttons = [
+      (<Button onClick={this.props.onClose} color="primary">
+        Cancel
+      </Button>),
+    ]
+    switch(this.props.mode) {
+      case PopupMode.NEW_TEMPLATE:
+        title = "New Template";
+        content = this.generateEditableTemplateContent();
+        buttons.push(
+          <Button onClick={this.handleOnSubmit} color="primary">
+            Submit
+          </Button>
+        );
+        break;
+      case PopupMode.READ_TEMPLATE:
+        title = this.props.template.name;
+        content = this.generateReadTemplateContent();
+        break;
+      case PopupMode.MODIFY_TEMPLATE:
+        title = `Edit: ${this.props.template.name}`;
+        content = this.generateEditableTemplateContent();
+        buttons.push(
+          <Button onClick={this.handleOnSubmit} color="primary">
+            Save
+          </Button>
+        );
+        break;
+      default:
+        break;
+    }
 
     return (
-      <div>
-        <Dialog
-          aria-labelledby="templatepopup"
-          open={this.props.mode !== PopupMode.CLOSED}
-          onClose={this.props.onClose}
-        >
-          <div>
-            <TemplatePopupTitle mode={this.props.mode} value={this.props.template.name} />
-            <TemplatePopupContent mode={this.props.mode} content={this.props.template.content} />
-            <TemplatePopupActions mode={this.props.mode} onClose={this.props.onClose} />
-          </div>
-        </Dialog>
-      </div>
+      <Dialog
+        aria-labelledby="templatePopup"
+        open={this.props.mode !== PopupMode.CLOSED}
+        onClose={this.props.onClose}
+      >
+        <div>
+          <DialogTitle id="form-dialog-title">{title}</DialogTitle>
+          <DialogContent>
+            {content}
+          </DialogContent>
+          <DialogActions>
+            {buttons}
+          </DialogActions>
+        </div>
+      </Dialog>
     );
   }
 }
@@ -165,9 +253,10 @@ class TemplateList extends Component {
   getAllTemplates() {
     TemplateApi.getAll()
     .then((res) => {
-      this.setState({...this.state, err: undefined, templates: res.body});
+      this.setState({err: undefined, templates: res.body});
     }, (err, res) => {
-      this.setState({...this.state, err: err});
+      console.log(err);
+      this.setState({err: err});
     });
   }
 
@@ -178,9 +267,32 @@ class TemplateList extends Component {
       popupTemplate: t,
     });
   };
+  
+  handlePopupSubmit = (template) => {
+    console.log(template);
+    let request;
+    if(template.url) {
+      // PUT the template
+      request = TemplateApi.put(template);
+    } else {
+      // POST the template
+      request = TemplateApi.post(template);
+    }
+    request.then(
+      (res) => {
+        this.getAllTemplates();
+      }, 
+      (err, res) => {
+        console.log(err);
+      });
+    this.setState({
+      popupMode: PopupMode.CLOSED,
+      popupTemplate: undefined,
+    });
+  };
 
   handlePopupClose = () => this.handlePopupChangeMode(PopupMode.CLOSED, undefined);
-  handlePopupNewTemplate = (t) => this.handlePopupChangeMode(PopupMode.NEW_TEMPLATE, t);
+  handlePopupNewTemplate = () => this.handlePopupChangeMode(PopupMode.NEW_TEMPLATE, undefined);
   handlePopupReadTemplate = (t) => this.handlePopupChangeMode(PopupMode.READ_TEMPLATE, t);
   handlePopupModifyTemplate = (t) => this.handlePopupChangeMode(PopupMode.MODIFY_TEMPLATE, t);
 
@@ -191,6 +303,7 @@ class TemplateList extends Component {
           mode={this.state.popupMode}
           template={this.state.popupTemplate}
           onClose={this.handlePopupClose}
+          onSubmit={this.handlePopupSubmit}
         />
         {
           this.state.err ?

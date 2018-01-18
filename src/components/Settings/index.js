@@ -59,9 +59,9 @@ class Settings extends Component {
                 InputLabelProps={{
                   shrink: true,
                 }}
-                placeholder="/api/mail/v1/"
+                placeholder="http://localhost:8080"
                 value={this.state.baseUrl}
-                onChange={(e) => this.setState({...this.state, baseUrl: e.target.value, saved: false})}
+                onChange={(e) => this.setState({...this.state, baseUrl: e.target.value.trim, saved: false})}
                 helperText="The base url of the mail service"
                 fullWidth
                 margin="normal"
