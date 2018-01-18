@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Route, Link } from 'react-router-dom';
 
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import AddIcon from 'material-ui-icons/Add';
@@ -58,7 +56,7 @@ class TemplatePopup extends Component {
       this.setState({editableTemplate});
     }
   }
-  
+
   setTemplate(updatedTemplate) {
     let editableTemplate = {...this.state.editableTemplate, ...updatedTemplate};
     this.setState({editableTemplate})
@@ -116,7 +114,7 @@ class TemplatePopup extends Component {
 
   generateEditableTemplateContent() {
     let contents = [];
-    if(this.props.mode == PopupMode.NEW_TEMPLATE) {
+    if(this.props.mode === PopupMode.NEW_TEMPLATE) {
       contents.push(
         <TextField
           id="full-width"
@@ -156,6 +154,7 @@ class TemplatePopup extends Component {
         }}
         value={this.state.editableTemplate.subject}
         onChange={(e) => this.setTemplate({subject: e.target.value})}
+        // eslint-disable-next-line
         placeholder="Salutations for ${name}"
         fullWidth
         margin="normal"
@@ -170,6 +169,7 @@ class TemplatePopup extends Component {
         }}
         value={this.state.editableTemplate.content}
         onChange={(e) => this.setTemplate({content: e.target.value})}
+        // eslint-disable-next-line
         placeholder="Hello ${name}"
         fullWidth
         multiline
@@ -271,7 +271,7 @@ class TemplateList extends Component {
       popupTemplate: t,
     });
   };
-  
+
   handlePopupSubmit = (template) => {
     console.log(template);
     let request;
@@ -285,7 +285,7 @@ class TemplateList extends Component {
     request.then(
       (res) => {
         this.getAllTemplates();
-      }, 
+      },
       (err, res) => {
         console.log(err);
       });

@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import { Route, Link } from 'react-router-dom';
 
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import Typography from 'material-ui/Typography';
@@ -94,7 +92,7 @@ class MailPopup extends Component {
           }
         } while (match);
         this.setState({templateParameterNames: Array.from(templateParameterNames)});
-      }, 
+      },
       (err) => {
         this.setState({templateParameterNames: []});
       });
@@ -319,7 +317,7 @@ class MailList extends Component {
       popupText: "",
     };
   }
-  
+
   componentDidMount() {
     this.getAllMails();
     this.interval = setInterval(() => this.getAllMails(), 3000);
@@ -382,7 +380,7 @@ class MailList extends Component {
     JobApi.remove(jobLink).then(
       (res) => {
         this.getAllMails();
-      }, 
+      },
       (err, res) => {
         console.log(err);
       });
