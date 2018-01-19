@@ -151,7 +151,7 @@ class MailPopup extends Component {
         </div>
       );
     }
-    if(this.props.mail.cc.length > 0) {
+    if(this.props.mail.cci.length > 0) {
       contents.push(
         <div key="cci">
           <Typography type="caption">Cci:</Typography>
