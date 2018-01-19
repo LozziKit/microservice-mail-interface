@@ -50,9 +50,10 @@ class TemplatePopup extends Component {
    * @type {{subject: string}}
    */
   defaultEditableTemplate = {
+    name: "",
     description: "",
     subject: "",
-  }
+  };
 
   /**
    * When new props are received, parse them to assign the template data to the fields.
@@ -73,7 +74,7 @@ class TemplatePopup extends Component {
         description: nextProps.template.description,
         subject: metaValues.subject || "",
         content: body,
-      }
+      };
       this.setState({editableTemplate});
     }
   }

@@ -40,10 +40,22 @@ class MailPopup extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      createdMail: {},
+      createdMail: {...this.defaultCreatedMail},
       templateParameters: {},
       templateParameterNames: [],
     };
+  }
+
+  /**
+   * The default value of the different field.
+   * @type {{subject: string}}
+   */
+  defaultCreatedMail = {
+      templateName: "",
+      to: "",
+      from: "",
+      cc: "",
+      cci: "",
   }
 
   /**
@@ -79,7 +91,7 @@ class MailPopup extends Component {
     mailToSend["map"] = {...this.state.templateParameters};
     this.props.onSend(mailToSend);
     this.setState({
-      createdMail: {},
+      createdMail: {...this.defaultCreatedMail},
       templateParameters: {},
       templateParameterNames: []
     });
@@ -112,7 +124,9 @@ class MailPopup extends Component {
             templateParameterNames.add(match[1]);
           }
         } while (match);
-        this.setState({templateParameterNames: Array.from(templateParameterNames)});
+        let templateParameters = {};
+        templateParameterNames.forEach(param => templateParameters[param] = "");
+        this.setState({templateParameters, templateParameterNames: Array.from(templateParameterNames)});
       },
       (err) => {
         this.setState({templateParameterNames: []});
