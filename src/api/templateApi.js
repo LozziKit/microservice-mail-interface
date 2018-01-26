@@ -31,7 +31,7 @@ function put(template) {
 
 function remove(link) {
     return request
-        .del(link);
+        .del(`${config.baseUrl}${link}`);
 }
 
 const TemplateApi = {

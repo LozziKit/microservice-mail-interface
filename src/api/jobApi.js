@@ -26,7 +26,7 @@ function put(job) {
 
 function remove(link) {
     return request
-        .del(link);
+        .del(`${config.baseUrl}${link}`);
 }
 
 const JobApi = {
