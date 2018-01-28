@@ -3,7 +3,7 @@
 This app allows the administration of the Lozzikit - Mail service. 
 It was develloped during the TWEB course at the University of Applied Sciences of Yverdon.
 
-# Installation
+## Installation
 
 ```
 $ npm install
@@ -26,11 +26,27 @@ It correctly bundles React in production mode and optimizes the build for best p
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
 
-# Usage
+## Usage
 
-In order for the app to function properly, the Lozzikit - Mail microservice **must** be running on the machine (for example with the docker-compose configuration file) and the app must be configured with the appropriate URL to reach the microservice.
+In order for the app to function properly, the Lozzikit - [Mail microservice](https://github.com/LozziKit/microservice-mail) **must** be running on the machine (for example with the docker-compose configuration file) and the app must be configured with the appropriate URL to reach the microservice.
 
 If the micro-service can't be reached at the same address and port as the host of the app, the host must enable Cross-Origin Resource Sharing.
+
+### Create a Template
+
+Select the template tab and press the **+** icon to create a template.<br>
+
+![You should be prompted with this](screenshots/createTemplate.png)
+
+You can always edit or delete the template later.
+
+### Create a Mail
+
+Select the mail tab and press the **+** icon to create a mail, specify the template name if needed.<br>
+
+![You should be prompted with this](screenshots/createMail.png)
+
+Choose the parameter to complete the mail.
 
 # Thanks
 
