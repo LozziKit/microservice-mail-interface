@@ -48,6 +48,10 @@ Select the mail tab and press the **+** icon to create a mail, specify the templ
 
 Choose the parameter to complete the mail.
 
+While the mail is being sent you will be prompted with this screencap. You can cancel the job from here.
+
+![You should be prompted with this](screenshots/mailSent.png)
+
 # Thanks
 
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
