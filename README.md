@@ -30,7 +30,7 @@ Your app is ready to be deployed!
 
 In order for the app to function properly, the Lozzikit - Mail microservice **must** be running on the machine (for example with the docker-compose configuration file) and the app must be configured with the appropriate URL to reach the microservice.
 
-If the microservice can't be reached at the same address and port as the host of the app, the host must enable Cross-Origin Resource Sharing.
+If the micro-service can't be reached at the same address and port as the host of the app, the host must enable Cross-Origin Resource Sharing.
 
 # Thanks
 
